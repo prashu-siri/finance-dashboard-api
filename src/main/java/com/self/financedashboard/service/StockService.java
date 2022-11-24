@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StockService {
@@ -96,10 +98,25 @@ public class StockService {
                 .bodyToMono(StockDetails.class)
                 .block();
 
-        if(stockDetails != null) {
+        if(stockDetails != null && stockDetails.getPriceInfo() != null) {
             return stockDetails.getPriceInfo().getLastPrice();
         }
 
         return 0.00;
+    }
+
+    public void deleteStock(int id) {
+        Optional<Stock> stock = stockRepository.findById(id);
+        updateStockInSummary(stock.get());
+        stockRepository.deleteById(id);
+    }
+
+    private void updateStockInSummary(Stock stock) {
+        Optional<Summary> summary = summaryRepository.findBySymbol(stock.getStockSymbol());
+        Summary summaryStock = summary.get();
+
+        summaryStock.setQuantity(summaryStock.getQuantity() - stock.getQuantity());
+        summaryStock.setInvestedAmount(summaryStock.getInvestedAmount() - (stock.getQuantity() * stock.getPrice()));
+        summaryRepository.save(summaryStock);
     }
 }
