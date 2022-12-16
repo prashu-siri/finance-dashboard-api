@@ -2,6 +2,7 @@ package com.self.financedashboard.controller;
 
 import com.google.gson.Gson;
 import com.self.financedashboard.model.DashboardSummary;
+import com.self.financedashboard.model.ErrorResponse;
 import com.self.financedashboard.model.Stock;
 import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.service.StockService;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/stock/")
@@ -35,23 +37,31 @@ public class StockController {
 
         try {
             stockService.addStock(stocks);
+            return new ResponseEntity<>(gson.toJson("Stock added successfully"), HttpStatus.OK);
         }catch (Exception exception) {
-            return new ResponseEntity<>(gson.toJson("Error while adding stock details"), HttpStatus.INTERNAL_SERVER_ERROR);
+            ErrorResponse errorResponse = new ErrorResponse("Error while adding stock details",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return new ResponseEntity<>(gson.toJson("Stock added successfully"), HttpStatus.OK);
     }
 
     @CrossOrigin
     @GetMapping("stocks")
-    public List<Stock> getStocks() {
+    public Map<String, List<Stock>> getStocks() {
         return stockService.getStocks();
     }
 
     @CrossOrigin
     @GetMapping("dashboard")
-    public List<DashboardSummary> getUserStocks() {
-        return stockService.getUserStocks();
+    public ResponseEntity<?> getUserStocks() {
+        try {
+            List<DashboardSummary> stocks = stockService.getUserStocks();
+            return new ResponseEntity<>(stocks, HttpStatus.OK);
+        }catch (Exception exception) {
+            ErrorResponse errorResponse = new ErrorResponse("Error while fetching user stock details",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @CrossOrigin

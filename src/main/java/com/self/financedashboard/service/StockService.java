@@ -1,5 +1,6 @@
 package com.self.financedashboard.service;
 
+import com.self.financedashboard.configuration.Config;
 import com.self.financedashboard.enumeration.TickerSymbol;
 import com.self.financedashboard.model.DashboardSummary;
 import com.self.financedashboard.model.Stock;
@@ -10,11 +11,11 @@ import com.self.financedashboard.repository.StockRepository;
 import com.self.financedashboard.repository.SummaryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -22,10 +23,12 @@ public class StockService {
 
     private final StockRepository stockRepository;
     private final SummaryRepository summaryRepository;
+    private final Config config;
 
-    public StockService(StockRepository stockRepository, SummaryRepository summaryRepository) {
+    public StockService(StockRepository stockRepository, SummaryRepository summaryRepository, Config config) {
         this.stockRepository = stockRepository;
         this.summaryRepository = summaryRepository;
+        this.config = config;
     }
 
     public void addStock(List<Stock> stocks) {
@@ -46,8 +49,29 @@ public class StockService {
         summaryRepository.save(summary);
     }
 
-    public List<Stock> getStocks() {
-        return (List<Stock>) stockRepository.findAll();
+    public Map<String, List<Stock>> getStocks() {
+        List<Stock> computedStocks = new ArrayList<>();
+        Map<String, List<Stock>> map = new HashMap<>();
+        List<Stock> stocks = (List<Stock>) stockRepository.findAll();
+
+        for (Stock stock: stocks) {
+            if(map.isEmpty()) {
+                computedStocks.add(stock);
+                map.put(stock.getStockName(), computedStocks);
+            } else {
+                if(map.containsKey(stock.getStockName())) {
+                    List<Stock> value = map.get(stock.getStockName());
+                    value.add(stock);
+                    map.put(stock.getStockName(), value);
+                } else {
+                    computedStocks = new ArrayList<>();
+                    computedStocks.add(stock);
+                    map.put(stock.getStockName(), computedStocks);
+                }
+            }
+        }
+
+        return map;
     }
 
     public List<Ticker> getSymbols() {
@@ -90,7 +114,7 @@ public class StockService {
     }
 
     private double getStockCurrentPrice(String symbol) {
-        WebClient webClient = WebClient.builder().baseUrl("https://stock-nse-india.herokuapp.com/").build();
+        WebClient webClient = WebClient.builder().baseUrl(config.getExternalApiUrl()).build();
         StockDetails stockDetails = webClient.get().uri(uriBuilder -> uriBuilder
                 .path("api/equity/{symbol}")
                 .build(symbol))
