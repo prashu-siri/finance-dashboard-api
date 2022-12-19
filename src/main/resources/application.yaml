@@ -1,11 +1,9 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/finance_dashboard
+    url: jdbc:postgresql://dpg-ceg63tp4reb3r0r74jtg-a.oregon-postgres.render.com/finance_dashboard
     username: root
-    password: password
-    driver-class-name: com.mysql.jdbc.Driver
-hibernate:
-  dialect: org.hibernate.dialect.MySQL5Dialect
+    password: z9PRSJ0AnHu7KRomStPtWLfrOBbpjbJx
+
 external:
   api:
     url: https://stock-india.onrender.com

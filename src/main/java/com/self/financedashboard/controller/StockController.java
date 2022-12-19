@@ -6,6 +6,7 @@ import com.self.financedashboard.model.ErrorResponse;
 import com.self.financedashboard.model.Stock;
 import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.service.StockService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/stock/")
+@Slf4j
 public class StockController {
 
     private final StockService stockService;
@@ -39,6 +41,7 @@ public class StockController {
             stockService.addStock(stocks);
             return new ResponseEntity<>(gson.toJson("Stock added successfully"), HttpStatus.OK);
         }catch (Exception exception) {
+            log.error(exception.getMessage());
             ErrorResponse errorResponse = new ErrorResponse("Error while adding stock details",
                     HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -58,6 +61,7 @@ public class StockController {
             List<DashboardSummary> stocks = stockService.getUserStocks();
             return new ResponseEntity<>(stocks, HttpStatus.OK);
         }catch (Exception exception) {
+            log.error(exception.getMessage());
             ErrorResponse errorResponse = new ErrorResponse("Error while fetching user stock details",
                     HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -30,7 +30,7 @@ public class GainerLosers {
     public double yearLow;
     public double nearWKH;
     public double nearWKL;
-    public double perChange365d;
+    public Object perChange365d;
     public String date365dAgo;
     public String chart365dPath;
     public String date30dAgo;
