@@ -139,8 +139,13 @@ public class StockService {
         Optional<Summary> summary = summaryRepository.findBySymbol(stock.getStockSymbol());
         Summary summaryStock = summary.get();
 
-        summaryStock.setQuantity(summaryStock.getQuantity() - stock.getQuantity());
-        summaryStock.setInvestedAmount(summaryStock.getInvestedAmount() - (stock.getQuantity() * stock.getPrice()));
-        summaryRepository.save(summaryStock);
+        if(summaryStock.getQuantity() - stock.getQuantity() != 0) {
+            summaryStock.setQuantity(summaryStock.getQuantity() - stock.getQuantity());
+            summaryStock.setInvestedAmount(summaryStock.getInvestedAmount() - (stock.getQuantity() * stock.getPrice()));
+            summaryRepository.save(summaryStock);
+        } else {
+            summaryRepository.deleteById(summaryStock.getId());
+        }
+
     }
 }
