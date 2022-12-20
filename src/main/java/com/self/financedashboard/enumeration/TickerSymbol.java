@@ -856,7 +856,7 @@ public enum TickerSymbol {
     LANDMARK_PROPERTY_DEVELOPMENT_COMPANY_LIMITED_LPDC(853,"Landmark Property Development Company Limited","LPDC"),
     LLOYDS_STEELS_INDUSTRIES_LIMITED_LSIL(854,"Lloyds Steels Industries Limited","LSIL"),
     LARSEN_TOUBRO_LIMITED_LT(855,"Larsen & Toubro Limited","LT"),
-    LARSEN_TOUBRO_INFOTECH_LIMITED_LTI(856,"Larsen & Toubro Infotech Limited","LTI"),
+    LARSEN_TOUBRO_INFOTECH_MINDTREE_LTIM(856,"LTIMindtree Limited","LTIM"),
     LT_TECHNOLOGY_SERVICES_LIMITED_LTTS(857,"L&T Technology Services Limited","LTTS"),
     LUMAX_INDUSTRIES_LIMITED_LUMAXIND(858,"Lumax Industries Limited","LUMAXIND"),
     LUMAX_AUTO_TECHNOLOGIES_LIMITED_LUMAXTECH(859,"Lumax Auto Technologies Limited","LUMAXTECH"),
