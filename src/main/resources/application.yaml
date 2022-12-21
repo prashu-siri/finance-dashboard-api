@@ -1,8 +1,6 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://dpg-ceg63tp4reb3r0r74jtg-a.oregon-postgres.render.com/finance_dashboard
-    username: root
-    password: z9PRSJ0AnHu7KRomStPtWLfrOBbpjbJx
+  profiles:
+    active: dev
 
 external:
   api:
