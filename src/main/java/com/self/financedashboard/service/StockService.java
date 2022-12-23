@@ -148,4 +148,13 @@ public class StockService {
         }
 
     }
+
+    public String updateStock(Stock stock) {
+        try {
+            stockRepository.save(stock);
+        } catch(Exception exception) {
+            throw new RuntimeException();
+        }
+        return "Stock updated successfully";
+    }
 }
