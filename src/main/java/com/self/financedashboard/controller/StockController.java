@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,5 +79,21 @@ public class StockController {
     @DeleteMapping("delete/{id}")
     public void deleteStock(@PathVariable int id) {
         stockService.deleteStock(id);
+    }
+
+    @CrossOrigin
+    @PostMapping("update")
+    public Map<String, Object> updateStock(@RequestBody Stock stock) {
+        Map<String, Object> responseMap = new HashMap<>();
+        try {
+            String response = stockService.updateStock(stock);
+            responseMap.put("status", HttpStatus.OK);
+            responseMap.put("data", response);
+        } catch (Exception e) {
+            responseMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR);
+            responseMap.put("data","Error while updating the stock details");
+        }
+
+        return responseMap;
     }
 }
