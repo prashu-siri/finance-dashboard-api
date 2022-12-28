@@ -9,9 +9,11 @@ import com.self.financedashboard.model.Summary;
 import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.repository.StockRepository;
 import com.self.financedashboard.repository.SummaryRepository;
+import com.self.financedashboard.util.DashboardSummaryComparator;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class StockService {
 
     private final StockRepository stockRepository;
@@ -32,21 +35,8 @@ public class StockService {
     }
 
     public void addStock(List<Stock> stocks) {
-        double investedAmount = 0.00;
-        int totalQuantity = 0;
-        for (Stock stock: stocks) {
-            investedAmount = investedAmount + (stock.getPrice() * stock.getQuantity());
-            totalQuantity = totalQuantity + stock.getQuantity();
-            stockRepository.save(stock);
-        }
-
-        Summary summary = new Summary();
-        summary.setName(stocks.get(0).getStockName());
-        summary.setSymbol(stocks.get(0).getStockSymbol());
-        summary.setInvestedAmount(investedAmount);
-        summary.setQuantity(totalQuantity);
-
-        summaryRepository.save(summary);
+        stockRepository.saveAll(stocks);
+        updateSummary(stocks, "add");
     }
 
     public Map<String, List<Stock>> getStocks() {
@@ -110,6 +100,8 @@ public class StockService {
             dashboardSummaryList.add(dashboardSummary);
         }
 
+        dashboardSummaryList.sort(new DashboardSummaryComparator());
+
         return dashboardSummaryList;
     }
 
@@ -131,30 +123,53 @@ public class StockService {
 
     public void deleteStock(int id) {
         Optional<Stock> stock = stockRepository.findById(id);
-        updateStockInSummary(stock.get());
         stockRepository.deleteById(id);
-    }
 
-    private void updateStockInSummary(Stock stock) {
-        Optional<Summary> summary = summaryRepository.findBySymbol(stock.getStockSymbol());
-        Summary summaryStock = summary.get();
-
-        if(summaryStock.getQuantity() - stock.getQuantity() != 0) {
-            summaryStock.setQuantity(summaryStock.getQuantity() - stock.getQuantity());
-            summaryStock.setInvestedAmount(summaryStock.getInvestedAmount() - (stock.getQuantity() * stock.getPrice()));
-            summaryRepository.save(summaryStock);
-        } else {
-            summaryRepository.deleteById(summaryStock.getId());
+        if(stock.isPresent()) {
+            List<Stock> stocks = stockRepository.findByStockSymbol(stock.get().getStockSymbol());
+            if (stocks.isEmpty()) {
+                summaryRepository.deleteBySymbol(stock.get().getStockSymbol());
+            } else {
+                updateSummary(stocks);
+            }
         }
-
     }
 
     public String updateStock(Stock stock) {
         try {
             stockRepository.save(stock);
+            List<Stock> stocks = stockRepository.findByStockSymbol(stock.getStockSymbol());
+            updateSummary(stocks);
+
         } catch(Exception exception) {
             throw new RuntimeException();
         }
         return "Stock updated successfully";
+    }
+
+    private void updateSummary(List<Stock> stocks, String ...action) {
+        double investedAmount = 0.00;
+        int totalQuantity = 0;
+        Summary summary;
+
+        for (Stock stock: stocks) {
+            investedAmount = investedAmount + (stock.getPrice() * stock.getQuantity());
+            totalQuantity = totalQuantity + stock.getQuantity();
+        }
+
+        Optional<Summary> s = summaryRepository.findBySymbol(stocks.get(0).getStockSymbol());
+        summary = s.orElse(new Summary());
+
+        if(action.length > 0 && s.isPresent()) {
+            investedAmount += s.get().getInvestedAmount();
+            totalQuantity += s.get().getQuantity();
+        }
+
+        summary.setName(stocks.get(0).getStockName());
+        summary.setSymbol(stocks.get(0).getStockSymbol());
+        summary.setInvestedAmount(investedAmount);
+        summary.setQuantity(totalQuantity);
+
+        summaryRepository.save(summary);
     }
 }

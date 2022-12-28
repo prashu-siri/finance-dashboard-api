@@ -21,6 +21,6 @@ public class Summary {
     private int id;
     private String name;
     private String symbol;
-    private int quantity;
-    private double investedAmount;
+    private int quantity = 0;
+    private double investedAmount = 0.0;
 }
