@@ -25,4 +25,6 @@ public class PriceInfo {
     public double basePrice;
     public IntraDayHighLow intraDayHighLow;
     public WeekHighLow weekHighLow;
+    private String iNavValue;
+    private boolean checkINav;
 }
