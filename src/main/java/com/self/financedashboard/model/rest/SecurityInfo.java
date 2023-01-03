@@ -17,7 +17,7 @@ public class SecurityInfo{
     public String slb;
     public String classOfShare;
     public String derivatives;
-    public String surveillance;
+    public Surveillance surveillance;
     public int faceValue;
-    public String issuedSize;
+    public Long issuedSize;
 }

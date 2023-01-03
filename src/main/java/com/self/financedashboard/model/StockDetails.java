@@ -21,15 +21,10 @@ import lombok.Setter;
 @Setter
 @Getter
 public class StockDetails {
-    private Ato ato;
-    private IndustryInfo industryInfo;
     private Info info;
-    private IntraDayHighLow intraDayHighLow;
     private Metadata metadata;
-    private Preopen preopen;
-    private PreOpenMarket preOpenMarket;
-    private PriceInfo priceInfo;
-    private Root root;
     private SecurityInfo securityInfo;
-    private WeekHighLow weekHighLow;
+    private PriceInfo priceInfo;
+    private IndustryInfo industryInfo;
+    private PreOpenMarket preOpenMarket;
 }
