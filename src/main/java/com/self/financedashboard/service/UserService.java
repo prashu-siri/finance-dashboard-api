@@ -1,9 +1,14 @@
 package com.self.financedashboard.service;
 
+import com.self.financedashboard.model.ApiResponse;
 import com.self.financedashboard.model.UserLogin;
 import com.self.financedashboard.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,29 +21,50 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public String signUp(UserLogin userLogin) {
-        boolean isExistingUser = checkIfEmailIdExists(userLogin.getEmailId());
-        if(isExistingUser) {
-            return "Email Id already exist";
+    public ApiResponse signUp(UserLogin userLogin) {
+        ApiResponse response = new ApiResponse();
+        UserLogin existingUser = checkIfEmailIdExists(userLogin.getEmailId());
+        if(existingUser != null) {
+            response.setMessage("Email Id already exist");
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setData(null);
         } else {
             userRepository.save(userLogin);
+            Map<String, Object> result = new HashMap<>();
+            result.put("name", userLogin.getName());
+            result.put("item", UUID.randomUUID().toString());
+
+            response.setData(result);
+            response.setMessage("User registered successfully");
+            response.setStatus(HttpStatus.OK);
         }
 
-        return "Registration successful. Sign in using the email Id";
+        return response;
     }
 
-    private boolean checkIfEmailIdExists(String emailId) {
+    private UserLogin checkIfEmailIdExists(String emailId) {
         Optional<UserLogin> user = userRepository.findByEmailId(emailId);
-        return user.isPresent();
+        return user.orElse(null);
     }
 
-    public String signIn(UserLogin userLogin) {
-        boolean isExistingUser = checkIfEmailIdExists(userLogin.getEmailId());
+    public ApiResponse signIn(UserLogin userLogin) {
+        ApiResponse response = new ApiResponse();
+        UserLogin existingUser = checkIfEmailIdExists(userLogin.getEmailId());
 
-        if (isExistingUser) {
-            return UUID.randomUUID().toString();
+        if (existingUser != null) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("name", existingUser.getName());
+            result.put("item", UUID.randomUUID().toString());
+
+            response.setData(result);
+            response.setMessage("User registered successfully");
+            response.setStatus(HttpStatus.OK);
         } else {
-            return "Email Id does not exist";
+            response.setMessage("Email Id does not exist");
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setData(null);
         }
+
+        return response;
     }
 }
