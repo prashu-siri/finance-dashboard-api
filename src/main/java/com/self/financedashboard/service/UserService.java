@@ -4,9 +4,9 @@ import com.self.financedashboard.model.ApiResponse;
 import com.self.financedashboard.model.UserLogin;
 import com.self.financedashboard.repository.UserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -16,9 +16,11 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public ApiResponse signUp(UserLogin userLogin) {
@@ -29,10 +31,9 @@ public class UserService {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setData(null);
         } else {
+            userLogin.setPassword(bCryptPasswordEncoder.encode(userLogin.getPassword()));
             userRepository.save(userLogin);
-            Map<String, Object> result = new HashMap<>();
-            result.put("name", userLogin.getName());
-            result.put("item", UUID.randomUUID().toString());
+            Map<String, Object> result = getDetails(userLogin);
 
             response.setData(result);
             response.setMessage("User registered successfully");
@@ -52,13 +53,18 @@ public class UserService {
         UserLogin existingUser = checkIfEmailIdExists(userLogin.getEmailId());
 
         if (existingUser != null) {
-            Map<String, Object> result = new HashMap<>();
-            result.put("name", existingUser.getName());
-            result.put("item", UUID.randomUUID().toString());
+            Map<String, Object> result = getDetails(existingUser);
 
-            response.setData(result);
-            response.setMessage("User registered successfully");
-            response.setStatus(HttpStatus.OK);
+            if(bCryptPasswordEncoder.matches(userLogin.getPassword(), existingUser.getPassword())) {
+                response.setData(result);
+                response.setMessage("User authenticated");
+                response.setStatus(HttpStatus.OK);
+            } else {
+                response.setData(null);
+                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                response.setMessage("Incorrect Password");
+            }
+
         } else {
             response.setMessage("Email Id does not exist");
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -66,5 +72,13 @@ public class UserService {
         }
 
         return response;
+    }
+
+    private Map<String, Object> getDetails(UserLogin userLogin) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("name", userLogin.getName());
+        result.put("item", UUID.randomUUID().toString());
+
+        return  result;
     }
 }
