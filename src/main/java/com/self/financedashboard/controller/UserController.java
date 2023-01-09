@@ -1,6 +1,7 @@
 package com.self.financedashboard.controller;
 
 import com.google.gson.Gson;
+import com.self.financedashboard.model.ApiResponse;
 import com.self.financedashboard.model.ErrorResponse;
 import com.self.financedashboard.model.UserLogin;
 import com.self.financedashboard.service.UserService;
@@ -30,8 +31,8 @@ public class UserController {
     @PostMapping(value = "signUp")
     public ResponseEntity<?> signUp(@RequestBody UserLogin userLogin) {
         try {
-            String response = userService.signUp(userLogin);
-            return new ResponseEntity<>(gson.toJson(response), HttpStatus.OK);
+            ApiResponse response = userService.signUp(userLogin);
+            return new ResponseEntity<>(response, response.getStatus());
         } catch (Exception exception) {
             log.error(exception.getMessage());
             ErrorResponse errorResponse = new ErrorResponse("Error while sign up", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -43,8 +44,8 @@ public class UserController {
     @PostMapping(value = "signIn")
     public ResponseEntity<?> signIn(@RequestBody UserLogin userLogin) {
         try {
-            String response = userService.signIn(userLogin);
-            return new ResponseEntity<>(gson.toJson(response), HttpStatus.OK);
+            ApiResponse response = userService.signIn(userLogin);
+            return new ResponseEntity<>(response, response.getStatus());
         } catch (Exception exception) {
             log.error(exception.getMessage());
             ErrorResponse errorResponse = new ErrorResponse("Error while sign in. Try after sometime", HttpStatus.INTERNAL_SERVER_ERROR);
