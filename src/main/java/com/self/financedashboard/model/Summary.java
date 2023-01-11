@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,4 +24,5 @@ public class Summary {
     private String symbol;
     private int quantity = 0;
     private double investedAmount = 0.0;
+    private int userId;
 }

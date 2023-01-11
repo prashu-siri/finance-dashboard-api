@@ -50,16 +50,16 @@ public class StockController {
     }
 
     @CrossOrigin
-    @GetMapping("stocks")
-    public Map<String, List<Stock>> getStocks() {
-        return stockService.getStocks();
+    @GetMapping("stocks/{userId}")
+    public Map<String, List<Stock>> getStocks(@PathVariable int userId) {
+        return stockService.getStocks(userId);
     }
 
     @CrossOrigin
-    @GetMapping("dashboard")
-    public ResponseEntity<?> getUserStocks() {
+    @GetMapping("dashboard/{userId}")
+    public ResponseEntity<?> getUserStocks(@PathVariable int userId) {
         try {
-            List<DashboardSummary> stocks = stockService.getUserStocks();
+            List<DashboardSummary> stocks = stockService.getUserStocks(userId);
             return new ResponseEntity<>(stocks, HttpStatus.OK);
         }catch (Exception exception) {
             log.error(exception.getMessage());
@@ -76,9 +76,15 @@ public class StockController {
     }
 
     @CrossOrigin
-    @DeleteMapping("delete/{id}")
-    public void deleteStock(@PathVariable int id) {
-        stockService.deleteStock(id);
+    @DeleteMapping("delete")
+    public void deleteStock(@RequestBody Map<String, Object> detials) {
+        stockService.deleteStock(detials);
+    }
+
+    @CrossOrigin
+    @DeleteMapping("deleteAll/{id}")
+    public void deleteAllStocks(@PathVariable int id) {
+        stockService.deleteAllStocks(id);
     }
 
     @CrossOrigin

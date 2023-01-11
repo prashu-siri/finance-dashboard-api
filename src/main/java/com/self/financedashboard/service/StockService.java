@@ -39,10 +39,10 @@ public class StockService {
         updateSummary(stocks, "add");
     }
 
-    public Map<String, List<Stock>> getStocks() {
+    public Map<String, List<Stock>> getStocks(int userId) {
         List<Stock> computedStocks = new ArrayList<>();
         Map<String, List<Stock>> map = new HashMap<>();
-        List<Stock> stocks = (List<Stock>) stockRepository.findAll();
+        List<Stock> stocks = stockRepository.findUserStocks(userId);
 
         for (Stock stock: stocks) {
             if(map.isEmpty()) {
@@ -78,10 +78,10 @@ public class StockService {
         return tickers;
     }
 
-    public List<DashboardSummary> getUserStocks() {
+    public List<DashboardSummary> getUserStocks(int userId) {
         List<DashboardSummary> dashboardSummaryList = new ArrayList<>();
         List<Summary> summaryList = new ArrayList<>();
-        summaryRepository.findAll().forEach(summaryList::add);
+        summaryRepository.findAllUserStocks(userId).forEach(summaryList::add);
 
         for (Summary summary: summaryList) {
             double currentPrice = getStockCurrentPrice(summary.getSymbol());
@@ -121,14 +121,16 @@ public class StockService {
         return 0.00;
     }
 
-    public void deleteStock(int id) {
+    public void deleteStock(Map<String, Object> details) {
+        int id = (int) details.get("id");
+        int userId = (int) details.get("userId");
         Optional<Stock> stock = stockRepository.findById(id);
         stockRepository.deleteById(id);
 
         if(stock.isPresent()) {
-            List<Stock> stocks = stockRepository.findByStockSymbol(stock.get().getStockSymbol());
+            List<Stock> stocks = stockRepository.findByStockSymbolAndUserId(stock.get().getStockSymbol(), userId);
             if (stocks.isEmpty()) {
-                summaryRepository.deleteBySymbol(stock.get().getStockSymbol());
+                summaryRepository.deleteBySymbolAndUserId(stock.get().getStockSymbol(), userId);
             } else {
                 updateSummary(stocks);
             }
@@ -138,7 +140,7 @@ public class StockService {
     public String updateStock(Stock stock) {
         try {
             stockRepository.save(stock);
-            List<Stock> stocks = stockRepository.findByStockSymbol(stock.getStockSymbol());
+            List<Stock> stocks = stockRepository.findByStockSymbolAndUserId(stock.getStockSymbol(), stock.getUserId());
             updateSummary(stocks);
 
         } catch(Exception exception) {
@@ -157,7 +159,7 @@ public class StockService {
             totalQuantity = totalQuantity + stock.getQuantity();
         }
 
-        Optional<Summary> s = summaryRepository.findBySymbol(stocks.get(0).getStockSymbol());
+        Optional<Summary> s = summaryRepository.findBySymbolAndUserId(stocks.get(0).getStockSymbol(), stocks.get(0).getUserId());
         summary = s.orElse(new Summary());
 
         if(action.length > 0 && s.isPresent()) {
@@ -169,7 +171,13 @@ public class StockService {
         summary.setSymbol(stocks.get(0).getStockSymbol());
         summary.setInvestedAmount(investedAmount);
         summary.setQuantity(totalQuantity);
+        summary.setUserId(stocks.get(0).getUserId());
 
         summaryRepository.save(summary);
+    }
+
+    public void deleteAllStocks(int id) {
+        stockRepository.deleteAllStocks(id);
+        summaryRepository.deleteAllStocks(id);
     }
 }

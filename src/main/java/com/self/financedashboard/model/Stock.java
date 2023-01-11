@@ -28,4 +28,5 @@ public class Stock {
     private int quantity;
     private double price;
     private String date;
+    private int userId;
 }

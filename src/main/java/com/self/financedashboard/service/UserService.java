@@ -32,8 +32,8 @@ public class UserService {
             response.setData(null);
         } else {
             userLogin.setPassword(bCryptPasswordEncoder.encode(userLogin.getPassword()));
-            userRepository.save(userLogin);
-            Map<String, Object> result = getDetails(userLogin);
+            UserLogin user = userRepository.save(userLogin);
+            Map<String, Object> result = getDetails(user);
 
             response.setData(result);
             response.setMessage("User registered successfully");
@@ -76,6 +76,7 @@ public class UserService {
 
     private Map<String, Object> getDetails(UserLogin userLogin) {
         Map<String, Object> result = new HashMap<>();
+        result.put("id", userLogin.getId());
         result.put("name", userLogin.getName());
         result.put("item", UUID.randomUUID().toString());
 
