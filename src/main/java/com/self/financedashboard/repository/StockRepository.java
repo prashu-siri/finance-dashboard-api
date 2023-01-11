@@ -9,8 +9,11 @@ import java.util.List;
 
 @Repository
 public interface StockRepository extends CrudRepository<Stock, Integer> {
-    List<Stock> findByStockSymbol(String stockSymbol);
+    List<Stock> findByStockSymbolAndUserId(String stockSymbol, int userid);
 
     @Query(value = "DELETE FROM STOCK s where s.id = :id", nativeQuery = true)
     void deleteAllStocks(int id);
+
+    @Query(value = "SELECT * FROM STOCK s WHERE s.user_id= :userId", nativeQuery = true)
+    List<Stock> findUserStocks(int userId);
 }
