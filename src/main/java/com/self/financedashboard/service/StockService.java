@@ -172,4 +172,9 @@ public class StockService {
 
         summaryRepository.save(summary);
     }
+
+    public void deleteAllStocks(int id) {
+        stockRepository.deleteAllStocks(id);
+        summaryRepository.deleteAllStocks(id);
+    }
 }

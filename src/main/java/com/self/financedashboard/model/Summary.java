@@ -23,4 +23,5 @@ public class Summary {
     private String symbol;
     private int quantity = 0;
     private double investedAmount = 0.0;
+    private int userId;
 }

@@ -82,6 +82,12 @@ public class StockController {
     }
 
     @CrossOrigin
+    @DeleteMapping("deleteAll")
+    public void deleteAllStocks(@PathVariable int id) {
+        stockService.deleteAllStocks(id);
+    }
+
+    @CrossOrigin
     @PostMapping("update")
     public Map<String, Object> updateStock(@RequestBody Stock stock) {
         Map<String, Object> responseMap = new HashMap<>();
