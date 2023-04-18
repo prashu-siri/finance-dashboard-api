@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-ceg63tp4reb3r0r74jtg-a.oregon-postgres.render.com/finance_dashboard
-    username: root
-    password: z9PRSJ0AnHu7KRomStPtWLfrOBbpjbJx
+    url: jdbc:postgresql://dpg-cgv7c54s3fvmvqb8ljbg-a.oregon-postgres.render.com/finance_dashboard_k93i
+    username: admin
+    password: ngon6974d12DQ3hm0zwiFgIGKSC1rsfg
