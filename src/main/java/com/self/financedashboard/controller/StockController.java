@@ -3,6 +3,7 @@ package com.self.financedashboard.controller;
 import com.google.gson.Gson;
 import com.self.financedashboard.model.DashboardSummary;
 import com.self.financedashboard.model.ErrorResponse;
+import com.self.financedashboard.model.Intraday;
 import com.self.financedashboard.model.Stock;
 import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.service.StockService;
@@ -28,10 +29,11 @@ import java.util.Map;
 public class StockController {
 
     private final StockService stockService;
-    private final Gson gson= new Gson();
+    private final Gson gson;
 
-    public StockController(StockService stockService) {
+    public StockController(StockService stockService, Gson gson) {
         this.stockService = stockService;
+        this.gson = gson;
     }
 
     @CrossOrigin
@@ -101,5 +103,11 @@ public class StockController {
         }
 
         return responseMap;
+    }
+
+    @CrossOrigin
+    @GetMapping("intraday/{symbol}")
+    public Intraday intraday(@PathVariable String symbol) {
+        return stockService.getIntraday(symbol);
     }
 }

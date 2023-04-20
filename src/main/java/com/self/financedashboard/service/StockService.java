@@ -3,6 +3,7 @@ package com.self.financedashboard.service;
 import com.self.financedashboard.configuration.Config;
 import com.self.financedashboard.enumeration.TickerSymbol;
 import com.self.financedashboard.model.DashboardSummary;
+import com.self.financedashboard.model.Intraday;
 import com.self.financedashboard.model.Stock;
 import com.self.financedashboard.model.StockDetails;
 import com.self.financedashboard.model.Summary;
@@ -27,11 +28,13 @@ public class StockService {
     private final StockRepository stockRepository;
     private final SummaryRepository summaryRepository;
     private final Config config;
+    private final WebClient webClient;
 
-    public StockService(StockRepository stockRepository, SummaryRepository summaryRepository, Config config) {
+    public StockService(StockRepository stockRepository, SummaryRepository summaryRepository, Config config, WebClient webClient) {
         this.stockRepository = stockRepository;
         this.summaryRepository = summaryRepository;
         this.config = config;
+        this.webClient = webClient;
     }
 
     public void addStock(List<Stock> stocks) {
@@ -106,7 +109,6 @@ public class StockService {
     }
 
     private double getStockCurrentPrice(String symbol) {
-        WebClient webClient = WebClient.builder().baseUrl(config.getExternalApiUrl()).build();
         StockDetails stockDetails = webClient.get().uri(uriBuilder -> uriBuilder
                 .path("api/equity/{symbol}")
                 .build(symbol))
@@ -179,5 +181,14 @@ public class StockService {
     public void deleteAllStocks(int id) {
         stockRepository.deleteAllStocks(id);
         summaryRepository.deleteAllStocks(id);
+    }
+
+    public Intraday getIntraday(String symbol) {
+        return webClient.get().uri(uriBuilder -> uriBuilder
+                .path("api/equity/intraday/{symbol}")
+                .build(symbol))
+                .retrieve()
+                .bodyToMono(Intraday.class)
+                .block();
     }
 }

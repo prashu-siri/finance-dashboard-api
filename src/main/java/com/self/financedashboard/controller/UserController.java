@@ -1,6 +1,5 @@
 package com.self.financedashboard.controller;
 
-import com.google.gson.Gson;
 import com.self.financedashboard.model.ApiResponse;
 import com.self.financedashboard.model.ErrorResponse;
 import com.self.financedashboard.model.UserLogin;
@@ -20,11 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-    private final Gson gson;
 
-    public UserController(UserService userService, Gson gson) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.gson = gson;
     }
 
     @CrossOrigin
