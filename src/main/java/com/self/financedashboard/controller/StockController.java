@@ -5,6 +5,7 @@ import com.self.financedashboard.model.DashboardSummary;
 import com.self.financedashboard.model.ErrorResponse;
 import com.self.financedashboard.model.Intraday;
 import com.self.financedashboard.model.Stock;
+import com.self.financedashboard.model.StockDetails;
 import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.service.StockService;
 import lombok.extern.slf4j.Slf4j;
@@ -109,5 +110,11 @@ public class StockController {
     @GetMapping("intraday/{symbol}")
     public Intraday intraday(@PathVariable String symbol) {
         return stockService.getIntraday(symbol);
+    }
+
+    @CrossOrigin
+    @GetMapping("company/{symbol}")
+    public StockDetails getCompanyDetails(@PathVariable String symbol) {
+        return stockService.getCompanyDetails(symbol);
     }
 }

@@ -191,4 +191,13 @@ public class StockService {
                 .bodyToMono(Intraday.class)
                 .block();
     }
+
+    public StockDetails getCompanyDetails(String symbol) {
+        return webClient.get().uri(uriBuilder -> uriBuilder
+                .path("api/equity/{symbol}")
+                .build(symbol))
+                .retrieve()
+                .bodyToMono(StockDetails.class)
+                .block();
+    }
 }
