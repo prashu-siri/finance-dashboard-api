@@ -1,6 +1,5 @@
 package com.self.financedashboard.model.rest;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,9 +17,7 @@ public class Metadata {
     public String listingDate;
     public String industry;
     public String lastUpdateTime;
-    @JsonIgnore
-    public double pdSectorPe;
-    @JsonIgnore
-    public double pdSymbolPe;
+    public double pdSectorPe = 0.00;
+    public double pdSymbolPe = 0.00;
     public String pdSectorInd;
 }
