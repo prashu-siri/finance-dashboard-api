@@ -17,7 +17,7 @@ public class Metadata {
     public String listingDate;
     public String industry;
     public String lastUpdateTime;
-    public double pdSectorPe = 0.00;
-    public double pdSymbolPe = 0.00;
+    public Object pdSectorPe;
+    public Object pdSymbolPe;
     public String pdSectorInd;
 }
