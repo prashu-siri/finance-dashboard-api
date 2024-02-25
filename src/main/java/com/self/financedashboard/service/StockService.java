@@ -11,10 +11,11 @@ import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.repository.StockRepository;
 import com.self.financedashboard.repository.SummaryRepository;
 import com.self.financedashboard.util.DashboardSummaryComparator;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import javax.transaction.Transactional;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
