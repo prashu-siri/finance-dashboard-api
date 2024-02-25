@@ -3,4 +3,3 @@ spring:
     url: jdbc:postgres://dpg-cndjfnen7f5s73blkikg-a.oregon-postgres.render.com/finance_dashboard_3uhi
     username: finance_dashboard_3uhi_user
     password: rvdGahiGe5PZLz65gNLCZcqX5R7VTUi5
-    driver-class-name: com.mysql.cj.jdbc.Driver
