@@ -1,8 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-cndjfnen7f5s73blkikg-a.oregon-postgres.render.com/finance_dashboard_3uhi
-    username: finance_dashboard_3uhi_user
-    password: rvdGahiGe5PZLz65gNLCZcqX5R7VTUi5
+    url: jdbc:postgresql://bl9rc9tgvuw43h28le6m-postgresql.services.clever-cloud.com/bl9rc9tgvuw43h28le6m
+    username: usaauye1xg1qizdcuvla
+    password: lRvRSB2mGcjD4bHF0tTj9VkDMyNPJh
+    port: 50013
 #    driver-class-name: org.postgresql.Driver
   jpa:
     properties:
