@@ -1,10 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://bl9rc9tgvuw43h28le6m-postgresql.services.clever-cloud.com/bl9rc9tgvuw43h28le6m
+    url: jdbc:postgresql://bl9rc9tgvuw43h28le6m-postgresql.services.clever-cloud.com:50013/bl9rc9tgvuw43h28le6m
     username: usaauye1xg1qizdcuvla
     password: lRvRSB2mGcjD4bHF0tTj9VkDMyNPJh
-    port: 50013
-#    driver-class-name: org.postgresql.Driver
+    driver-class-name: org.postgresql.Driver
   jpa:
     properties:
       hibernate:
