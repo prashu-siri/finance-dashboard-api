@@ -1,7 +1,7 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-cuu565lds78s73964olg-a.oregon-postgres.render.com/finance_dashboard_3uhi
-    username: finance_dashboard_db
+    url: jdbc:postgresql://dpg-cuu565lds78s73964olg-a.oregon-postgres.render.com/finance_dashboard_db
+    username: finance_dashboard_db_user
     password: xbs9j2Vb4xmlHDxMtMpRWCknVwDt9JFT
 #    driver-class-name: org.postgresql.Driver
   jpa:
