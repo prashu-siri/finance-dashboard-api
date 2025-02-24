@@ -4,3 +4,7 @@ spring:
     username: finance_dashboard_3uhi_user
     password: rvdGahiGe5PZLz65gNLCZcqX5R7VTUi5
 #    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
