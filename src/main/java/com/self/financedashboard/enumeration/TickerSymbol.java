@@ -1639,7 +1639,9 @@ public enum TickerSymbol {
     ZOTA_HEALTH_CARE_LIMITED_ZOTA(1638,"Zota Health Care LImited","ZOTA"),
     ZUARI_AGRO_CHEMICALS_LIMITED_ZUARI(1639,"Zuari Agro Chemicals Limited","ZUARI"),
     ZUARI_GLOBAL_LIMITED_ZUARIGLOB(1640,"Zuari Global Limited","ZUARIGLOB"),
-    ZYDUS_WELLNESS_LIMITED_ZYDUSWELL(1641,"Zydus Wellness Limited","ZYDUSWELL");
+    ZYDUS_WELLNESS_LIMITED_ZYDUSWELL(1641,"Zydus Wellness Limited","ZYDUSWELL"),
+    UNIMECH_AEROSPACE_AND_MANUFACTURING_LTD(1642, "Unimech Aerospace and Manufacturing Ltd", "UNIMECH"),
+    NIPPON_INDIA_NIFTY_50_BEES(1643, "Nippon India ETF Nifty 50 BeES", "NIFTYBEES");
 
     int id;
     String companyName;
