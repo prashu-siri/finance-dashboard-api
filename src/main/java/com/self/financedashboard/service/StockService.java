@@ -28,13 +28,11 @@ public class StockService {
 
     private final StockRepository stockRepository;
     private final SummaryRepository summaryRepository;
-    private final Config config;
     private final WebClient webClient;
 
-    public StockService(StockRepository stockRepository, SummaryRepository summaryRepository, Config config, WebClient webClient) {
+    public StockService(StockRepository stockRepository, SummaryRepository summaryRepository, WebClient webClient) {
         this.stockRepository = stockRepository;
         this.summaryRepository = summaryRepository;
-        this.config = config;
         this.webClient = webClient;
     }
 
@@ -84,8 +82,7 @@ public class StockService {
 
     public List<DashboardSummary> getUserStocks(int userId) {
         List<DashboardSummary> dashboardSummaryList = new ArrayList<>();
-        List<Summary> summaryList = new ArrayList<>();
-        summaryRepository.findAllUserStocks(userId).forEach(summaryList::add);
+        List<Summary> summaryList = new ArrayList<>(summaryRepository.findAllUserStocks(userId));
 
         for (Summary summary: summaryList) {
             double currentPrice = getStockCurrentPrice(summary.getSymbol());

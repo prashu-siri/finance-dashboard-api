@@ -9,6 +9,8 @@ import com.self.financedashboard.model.StockDetails;
 import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.service.StockService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,6 +31,8 @@ import java.util.Map;
 @Slf4j
 public class StockController {
 
+    private static final Logger logger = LoggerFactory.getLogger(StockController.class);
+
     private final StockService stockService;
     private final Gson gson;
 
@@ -42,6 +46,7 @@ public class StockController {
     public ResponseEntity<?> addStock(@RequestBody List<Stock> stocks){
 
         try {
+            logger.info("StockController :: addStock :: Adding {} stocks", stocks.get(0).getStockName());
             stockService.addStock(stocks);
             return new ResponseEntity<>(gson.toJson("Stock added successfully"), HttpStatus.OK);
         }catch (Exception exception) {
@@ -62,6 +67,7 @@ public class StockController {
     @GetMapping("dashboard/{userId}")
     public ResponseEntity<?> getUserStocks(@PathVariable int userId) {
         try {
+            logger.info("StockController :: getUserStocks :: getting stocks for {}", userId);
             List<DashboardSummary> stocks = stockService.getUserStocks(userId);
             return new ResponseEntity<>(stocks, HttpStatus.OK);
         }catch (Exception exception) {
@@ -80,8 +86,8 @@ public class StockController {
 
     @CrossOrigin
     @DeleteMapping("delete")
-    public void deleteStock(@RequestBody Map<String, Object> detials) {
-        stockService.deleteStock(detials);
+    public void deleteStock(@RequestBody Map<String, Object> details) {
+        stockService.deleteStock(details);
     }
 
     @CrossOrigin
@@ -94,11 +100,13 @@ public class StockController {
     @PostMapping("update")
     public Map<String, Object> updateStock(@RequestBody Stock stock) {
         Map<String, Object> responseMap = new HashMap<>();
+        logger.info("StockController :: updateStock :: updating {} stock", stock.getStockName());
         try {
             String response = stockService.updateStock(stock);
             responseMap.put("status", HttpStatus.OK);
             responseMap.put("data", response);
         } catch (Exception e) {
+            logger.error("Error while updating the {} stock", stock.getStockName());
             responseMap.put("status", HttpStatus.INTERNAL_SERVER_ERROR);
             responseMap.put("data","Error while updating the stock details");
         }
