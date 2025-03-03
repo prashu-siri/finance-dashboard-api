@@ -1,6 +1,5 @@
 package com.self.financedashboard.service;
 
-import com.self.financedashboard.configuration.Config;
 import com.self.financedashboard.enumeration.TickerSymbol;
 import com.self.financedashboard.model.DashboardSummary;
 import com.self.financedashboard.model.Intraday;
@@ -14,7 +13,6 @@ import com.self.financedashboard.util.DashboardSummaryComparator;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
 
 import java.util.ArrayList;
 import java.util.HashMap;
