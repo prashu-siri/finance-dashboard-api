@@ -3,6 +3,7 @@ package com.self.financedashboard.controller;
 import com.google.gson.Gson;
 import com.self.financedashboard.model.DashboardSummary;
 import com.self.financedashboard.model.ErrorResponse;
+import com.self.financedashboard.model.Index;
 import com.self.financedashboard.model.Intraday;
 import com.self.financedashboard.model.Stock;
 import com.self.financedashboard.model.StockDetails;

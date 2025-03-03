@@ -2,6 +2,7 @@ package com.self.financedashboard.service;
 
 import com.self.financedashboard.configuration.Config;
 import com.self.financedashboard.controller.HomeController;
+import com.self.financedashboard.model.Index;
 import com.self.financedashboard.model.rest.helpers.GainersLosersWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +15,14 @@ public class HomeService {
     private static final Logger logger = LoggerFactory.getLogger(HomeService.class);
 
     private final Config config;
+    private final WebClient webClient;
 
-    public HomeService(Config config) {
+    public HomeService(Config config, WebClient webClient) {
         this.config = config;
+        this.webClient = webClient;
     }
 
     public GainersLosersWrapper getTopGainersLosers(String index) {
-        WebClient webClient = WebClient.builder().baseUrl(config.getExternalApiUrl()).build();
-
         logger.info("HomeService :: getTopGainersLosers :: {}", index);
 
         try {
@@ -35,5 +36,15 @@ public class HomeService {
             throw  new RuntimeException("Error fetching the gainer and losers");
         }
 
+    }
+
+    public Index getAllIndices() {
+        logger.info("HomeService :: getAllIndices");
+        return webClient.get().uri(uriBuilder -> uriBuilder
+                        .path("api/allIndices")
+                        .build())
+                .retrieve()
+                .bodyToMono(Index.class)
+                .block();
     }
 }

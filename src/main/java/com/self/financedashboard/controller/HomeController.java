@@ -1,6 +1,7 @@
 package com.self.financedashboard.controller;
 
 import com.self.financedashboard.model.ErrorResponse;
+import com.self.financedashboard.model.Index;
 import com.self.financedashboard.model.rest.helpers.GainersLosersWrapper;
 import com.self.financedashboard.service.HomeService;
 import org.slf4j.Logger;
@@ -37,5 +38,11 @@ public class HomeController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @CrossOrigin
+    @GetMapping("getAllIndices")
+    public Index getAllIndices() {
+        return homeService.getAllIndices();
     }
 }
