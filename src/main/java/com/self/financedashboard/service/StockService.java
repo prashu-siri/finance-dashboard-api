@@ -210,11 +210,17 @@ public class StockService {
     }
 
     public StockDetails getCompanyDetails(String symbol) {
-        return webClient.get().uri(uriBuilder -> uriBuilder
-                .path("api/equity/{symbol}")
-                .build(symbol))
+        StockDetails stock = webClient.get().uri(uriBuilder -> uriBuilder
+                        .path("api/equity/{symbol}")
+                        .build(symbol))
                 .retrieve()
                 .bodyToMono(StockDetails.class)
                 .block();
+
+        if(stock != null) {
+            stock.setLogo(TickerSymbol.getLogoBySymbol(stock.getInfo().getSymbol()));
+        }
+
+        return stock;
     }
 }
