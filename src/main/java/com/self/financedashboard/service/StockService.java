@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,16 +67,30 @@ public class StockService {
 
     public List<Ticker> getSymbols() {
         List<Ticker> tickers = new ArrayList<>();
+        List<String> approvedSymbols = getAllSymbols();
         for (TickerSymbol symbol: TickerSymbol.values()) {
-            Ticker ticker = new Ticker();
-            ticker.setId(symbol.getId());
-            ticker.setCompanyName(symbol.getCompanyName());
-            ticker.setCompanySymbol(symbol.getSymbol());
+            if(approvedSymbols.contains(symbol.getSymbol())) {
+                Ticker ticker = new Ticker();
+                ticker.setId(symbol.getId());
+                ticker.setCompanyName(symbol.getCompanyName());
+                ticker.setCompanySymbol(symbol.getSymbol());
+                ticker.setLogo(symbol.getLogo());
 
-            tickers.add(ticker);
+                tickers.add(ticker);
+            }
         }
 
         return tickers;
+    }
+
+    private List<String> getAllSymbols() {
+        String[] symbols = webClient.get().uri(uriBuilder -> uriBuilder
+                        .path("api/allSymbols")
+                        .build())
+                .retrieve()
+                .bodyToMono(String[].class)
+                .block();
+        return Arrays.asList(symbols);
     }
 
     public List<DashboardSummary> getUserStocks(int userId) {
@@ -84,17 +99,7 @@ public class StockService {
 
         for (Summary summary: summaryList) {
             double currentPrice = getStockCurrentPrice(summary.getSymbol());
-            double totalCurrentPrice = currentPrice * summary.getQuantity();
-
-            DashboardSummary dashboardSummary = new DashboardSummary();
-            dashboardSummary.setId(summary.getId());
-            dashboardSummary.setName(summary.getName());
-            dashboardSummary.setQuantity(summary.getQuantity());
-            dashboardSummary.setSymbol(summary.getSymbol());
-            dashboardSummary.setInvestedAmount(summary.getInvestedAmount());
-            dashboardSummary.setHoldings(totalCurrentPrice - summary.getInvestedAmount());
-            dashboardSummary.setCurrentPrice(currentPrice);
-            dashboardSummary.setTotalCurrentAmount(totalCurrentPrice);
+            DashboardSummary dashboardSummary = getDashboardSummary(summary, currentPrice);
 
             dashboardSummaryList.add(dashboardSummary);
         }
@@ -102,6 +107,22 @@ public class StockService {
         dashboardSummaryList.sort(new DashboardSummaryComparator());
 
         return dashboardSummaryList;
+    }
+
+    private DashboardSummary getDashboardSummary(Summary summary, double currentPrice) {
+        double totalCurrentPrice = currentPrice * summary.getQuantity();
+
+        DashboardSummary dashboardSummary = new DashboardSummary();
+        dashboardSummary.setId(summary.getId());
+        dashboardSummary.setName(summary.getName());
+        dashboardSummary.setQuantity(summary.getQuantity());
+        dashboardSummary.setSymbol(summary.getSymbol());
+        dashboardSummary.setLogo(TickerSymbol.getLogoBySymbol(summary.getSymbol()));
+        dashboardSummary.setInvestedAmount(summary.getInvestedAmount());
+        dashboardSummary.setHoldings(totalCurrentPrice - summary.getInvestedAmount());
+        dashboardSummary.setCurrentPrice(currentPrice);
+        dashboardSummary.setTotalCurrentAmount(totalCurrentPrice);
+        return dashboardSummary;
     }
 
     private double getStockCurrentPrice(String symbol) {

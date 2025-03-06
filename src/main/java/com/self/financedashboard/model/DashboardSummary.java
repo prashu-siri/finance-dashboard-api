@@ -18,4 +18,5 @@ public class DashboardSummary {
     private double currentPrice;
     private double holdings;
     private double totalCurrentAmount;
+    private String logo;
 }
