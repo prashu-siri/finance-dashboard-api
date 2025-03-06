@@ -22,4 +22,5 @@ public class StockDetails {
     private PriceInfo priceInfo;
     private IndustryInfo industryInfo;
     private PreOpenMarket preOpenMarket;
+    private String logo;
 }
