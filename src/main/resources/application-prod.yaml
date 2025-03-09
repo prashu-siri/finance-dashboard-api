@@ -1,6 +1,4 @@
 spring:
-  server:
-    port:
   datasource:
     url: jdbc:postgresql://${POSTGRESQL_ADDON_HOST}:${POSTGRESQL_ADDON_PORT}/${POSTGRESQL_ADDON_DB}
     username: ${POSTGRESQL_ADDON_USER}
