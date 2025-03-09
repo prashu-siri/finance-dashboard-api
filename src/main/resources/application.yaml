@@ -1,7 +1,8 @@
 spring:
   profiles:
     active: dev
-
+server:
+  port: 8080
 external:
   api:
     url: https://stock-india.onrender.com
