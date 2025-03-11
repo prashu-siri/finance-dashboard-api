@@ -25,13 +25,14 @@ public class UserService {
 
     public ApiResponse signUp(UserLogin userLogin) {
         ApiResponse response = new ApiResponse();
-        UserLogin existingUser = checkIfEmailIdExists(userLogin.getEmailId());
+        UserLogin existingUser = checkIfEmailIdExists(userLogin.getEmailId().toLowerCase());
         if(existingUser != null) {
             response.setMessage("Email Id already exist");
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setData(null);
         } else {
             userLogin.setPassword(bCryptPasswordEncoder.encode(userLogin.getPassword()));
+            userLogin.setEmailId(userLogin.getEmailId().toLowerCase());
             UserLogin user = userRepository.save(userLogin);
             Map<String, Object> result = getDetails(user);
 
@@ -50,7 +51,7 @@ public class UserService {
 
     public ApiResponse signIn(UserLogin userLogin) {
         ApiResponse response = new ApiResponse();
-        UserLogin existingUser = checkIfEmailIdExists(userLogin.getEmailId());
+        UserLogin existingUser = checkIfEmailIdExists(userLogin.getEmailId().toLowerCase());
 
         if (existingUser != null) {
             Map<String, Object> result = getDetails(existingUser);
