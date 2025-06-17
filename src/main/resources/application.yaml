@@ -3,6 +3,7 @@ spring:
     active: prod
 server:
   port: 8080
+  active: prod
 external:
   api:
-    url: https://stock-india.onrender.com
+    url: http://localhost:3000
