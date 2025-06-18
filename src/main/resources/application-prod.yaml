@@ -8,3 +8,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+rapidapi:
+  key: ${RAPID_API_KEY}
+  base-url: ${RAPID_API_BASE_URL}

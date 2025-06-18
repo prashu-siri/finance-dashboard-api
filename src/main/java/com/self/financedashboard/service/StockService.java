@@ -7,6 +7,10 @@ import com.self.financedashboard.model.Stock;
 import com.self.financedashboard.model.StockDetails;
 import com.self.financedashboard.model.Summary;
 import com.self.financedashboard.model.Ticker;
+import com.self.financedashboard.model.company.CompanyDetails;
+import com.self.financedashboard.model.marketTrends.MarketTrends;
+import com.self.financedashboard.model.marketTrends.TrendResponse;
+import com.self.financedashboard.model.quote.Quote;
 import com.self.financedashboard.repository.StockRepository;
 import com.self.financedashboard.repository.SummaryRepository;
 import com.self.financedashboard.util.DashboardSummaryComparator;
@@ -33,6 +37,34 @@ public class StockService {
         this.stockRepository = stockRepository;
         this.summaryRepository = summaryRepository;
         this.webClient = webClient;
+    }
+
+    public Quote getStockQuote(String symbol) {
+        return webClient.get()
+                .uri("/stock-quote?symbol=" + symbol)
+                .retrieve()
+                .bodyToMono(Quote.class)
+                .block();
+    }
+
+    public TrendResponse getMarketTrends() {
+        MarketTrends topGainers = webClient.get()
+                .uri("/market-trends?trend_type=GAINERS&country=in")
+                .retrieve()
+                .bodyToMono(MarketTrends.class)
+                .block();
+
+        MarketTrends topLosers = webClient.get()
+                .uri("/market-trends?trend_type=LOSERS&country=in")
+                .retrieve()
+                .bodyToMono(MarketTrends.class)
+                .block();
+
+        TrendResponse trendResponse = new TrendResponse();
+        trendResponse.setTopGainers(topGainers);
+        trendResponse.setTopLosers(topLosers);
+
+        return trendResponse;
     }
 
     public void addStock(List<Stock> stocks) {
@@ -67,30 +99,17 @@ public class StockService {
 
     public List<Ticker> getSymbols() {
         List<Ticker> tickers = new ArrayList<>();
-        List<String> approvedSymbols = getAllSymbols();
         for (TickerSymbol symbol: TickerSymbol.values()) {
-            if(approvedSymbols.contains(symbol.getSymbol())) {
-                Ticker ticker = new Ticker();
-                ticker.setId(symbol.getId());
-                ticker.setCompanyName(symbol.getCompanyName());
-                ticker.setCompanySymbol(symbol.getSymbol());
-                ticker.setLogo(symbol.getLogo());
+            Ticker ticker = new Ticker();
+            ticker.setId(symbol.getId());
+            ticker.setCompanyName(symbol.getCompanyName());
+            ticker.setCompanySymbol(symbol.getSymbol());
+            ticker.setLogo(symbol.getLogo());
 
-                tickers.add(ticker);
-            }
+            tickers.add(ticker);
         }
 
         return tickers;
-    }
-
-    private List<String> getAllSymbols() {
-        String[] symbols = webClient.get().uri(uriBuilder -> uriBuilder
-                        .path("api/allSymbols")
-                        .build())
-                .retrieve()
-                .bodyToMono(String[].class)
-                .block();
-        return Arrays.asList(symbols);
     }
 
     public List<DashboardSummary> getUserStocks(int userId) {
@@ -126,15 +145,10 @@ public class StockService {
     }
 
     private double getStockCurrentPrice(String symbol) {
-        StockDetails stockDetails = webClient.get().uri(uriBuilder -> uriBuilder
-                .path("api/equity/{symbol}")
-                .build(symbol))
-                .retrieve()
-                .bodyToMono(StockDetails.class)
-                .block();
+        Quote stockQuote = getStockQuote(symbol + ":NSE");
 
-        if(stockDetails != null && stockDetails.getPriceInfo() != null) {
-            return stockDetails.getPriceInfo().getLastPrice();
+        if(stockQuote != null && stockQuote.getData() != null) {
+            return stockQuote.getData().getPrice();
         }
 
         return 0.00;
@@ -209,18 +223,18 @@ public class StockService {
                 .block();
     }
 
-    public StockDetails getCompanyDetails(String symbol) {
-        StockDetails stock = webClient.get().uri(uriBuilder -> uriBuilder
-                        .path("api/equity/{symbol}")
-                        .build(symbol))
+    public CompanyDetails getCompanyDetails(String symbol) {
+        CompanyDetails companyDetails = webClient.get()
+                .uri("/stock-overview?symbol=" + symbol)
                 .retrieve()
-                .bodyToMono(StockDetails.class)
+                .bodyToMono(CompanyDetails.class)
                 .block();
 
-        if(stock != null) {
-            stock.setLogo(TickerSymbol.getLogoBySymbol(stock.getInfo().getSymbol()));
+        if(companyDetails != null) {
+            String companySymbol = companyDetails.getData().getSymbol().split(":")[0];
+            companyDetails.setLogo(TickerSymbol.getLogoBySymbol(companySymbol));
         }
 
-        return stock;
+        return companyDetails;
     }
 }
