@@ -3,11 +3,13 @@ package com.self.financedashboard.controller;
 import com.google.gson.Gson;
 import com.self.financedashboard.model.DashboardSummary;
 import com.self.financedashboard.model.ErrorResponse;
-import com.self.financedashboard.model.Index;
 import com.self.financedashboard.model.Intraday;
 import com.self.financedashboard.model.Stock;
 import com.self.financedashboard.model.StockDetails;
 import com.self.financedashboard.model.Ticker;
+import com.self.financedashboard.model.company.CompanyDetails;
+import com.self.financedashboard.model.marketTrends.TrendResponse;
+import com.self.financedashboard.model.quote.Quote;
 import com.self.financedashboard.service.StockService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -34,12 +36,44 @@ public class StockController {
 
     private static final Logger logger = LoggerFactory.getLogger(StockController.class);
 
+    private static final String STOCK_EXCHANGE = ":NSE";
+
     private final StockService stockService;
     private final Gson gson;
 
     public StockController(StockService stockService, Gson gson) {
         this.stockService = stockService;
         this.gson = gson;
+    }
+
+    @CrossOrigin
+    @GetMapping("quote/{symbol}")
+    public ResponseEntity<?> stockQuote(@PathVariable String symbol) {
+        try {
+            logger.info("StockController :: stockQuote :: {}", symbol);
+            String stockSymbol = symbol + STOCK_EXCHANGE;
+            Quote stockQuote = stockService.getStockQuote(stockSymbol);
+            return new ResponseEntity<>(stockQuote, HttpStatus.OK);
+        }catch (Exception exception) {
+            log.error(exception.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse("Error while getting the stock quote",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("marketTrends")
+    public ResponseEntity<?> getMarketTrends() {
+        try {
+            TrendResponse marketTrends = stockService.getMarketTrends();
+            return new ResponseEntity<>(marketTrends, HttpStatus.OK);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse("Error while getting the stock quote",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @CrossOrigin
@@ -123,7 +157,9 @@ public class StockController {
 
     @CrossOrigin
     @GetMapping("company/{symbol}")
-    public StockDetails getCompanyDetails(@PathVariable String symbol) {
-        return stockService.getCompanyDetails(symbol);
+    public CompanyDetails getCompanyDetails(@PathVariable String symbol) {
+        logger.info("StockController :: getCompanyDetails :: {}", symbol);
+        String stockSymbol = symbol + STOCK_EXCHANGE;
+        return stockService.getCompanyDetails(stockSymbol);
     }
 }

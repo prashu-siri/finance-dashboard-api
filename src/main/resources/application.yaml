@@ -1,8 +1,12 @@
 spring:
-  profiles:
+  config:
+    activate:
+      on-profile: dev
 server:
   port: 8080
-  active: prod
 external:
   api:
     url: http://localhost:3000
+#rapidapi:
+#  key: 38ba4521fdmsh75447049537d17fp15e665jsnf4302a18ae1a
+#  base-url: https://real-time-finance-data.p.rapidapi.com
