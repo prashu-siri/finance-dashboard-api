@@ -4,6 +4,3 @@ spring:
       on-profile: dev
 server:
   port: 8080
-external:
-  api:
-    url: http://localhost:3000

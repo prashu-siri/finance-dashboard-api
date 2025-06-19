@@ -11,6 +11,7 @@ import com.self.financedashboard.model.company.CompanyDetails;
 import com.self.financedashboard.model.marketTrends.MarketTrends;
 import com.self.financedashboard.model.marketTrends.TrendResponse;
 import com.self.financedashboard.model.quote.Quote;
+import com.self.financedashboard.model.quote.QuoteData;
 import com.self.financedashboard.repository.StockRepository;
 import com.self.financedashboard.repository.SummaryRepository;
 import com.self.financedashboard.util.DashboardSummaryComparator;
@@ -32,6 +33,7 @@ public class StockService {
     private final StockRepository stockRepository;
     private final SummaryRepository summaryRepository;
     private final WebClient webClient;
+    private final static String EXCHANGE_NSE = ":NSE";
 
     public StockService(StockRepository stockRepository, SummaryRepository summaryRepository, WebClient webClient) {
         this.stockRepository = stockRepository;
@@ -116,14 +118,22 @@ public class StockService {
         List<DashboardSummary> dashboardSummaryList = new ArrayList<>();
         List<Summary> summaryList = new ArrayList<>(summaryRepository.findAllUserStocks(userId));
 
-        for (Summary summary: summaryList) {
-            double currentPrice = getStockCurrentPrice(summary.getSymbol());
-            DashboardSummary dashboardSummary = getDashboardSummary(summary, currentPrice);
+        if(!summaryList.isEmpty()) {
+            Map<String, Double> stockCurrentPrice = getStockCurrentPrice(summaryList);
 
-            dashboardSummaryList.add(dashboardSummary);
+            for (Summary summary: summaryList) {
+                double currentPrice = 0.00;
+                if(stockCurrentPrice.containsKey(summary.getSymbol() + EXCHANGE_NSE)) {
+                    currentPrice = stockCurrentPrice.get(summary.getSymbol() + EXCHANGE_NSE);
+                }
+                DashboardSummary dashboardSummary = getDashboardSummary(summary, currentPrice);
+
+                dashboardSummaryList.add(dashboardSummary);
+            }
+
+            dashboardSummaryList.sort(new DashboardSummaryComparator());
+
         }
-
-        dashboardSummaryList.sort(new DashboardSummaryComparator());
 
         return dashboardSummaryList;
     }
@@ -144,14 +154,28 @@ public class StockService {
         return dashboardSummary;
     }
 
-    private double getStockCurrentPrice(String symbol) {
-        Quote stockQuote = getStockQuote(symbol + ":NSE");
+    private Map<String, Double> getStockCurrentPrice(List<Summary> summaryList) {
+        StringBuilder sb = new StringBuilder();
 
-        if(stockQuote != null && stockQuote.getData() != null) {
-            return stockQuote.getData().getPrice();
+        for (int i = 0; i < summaryList.size(); i++) {
+            Summary summary = summaryList.get(i);
+            if(i != summaryList.size() - 1) {
+                sb.append(summary.getSymbol());
+                sb.append(EXCHANGE_NSE);
+                sb.append(",");
+            } else {
+                sb.append(summary.getSymbol());
+            }
+        }
+        Quote stockQuote = getStockQuote(sb.toString());
+
+        Map<String, Double> stockPrice = new HashMap<>();
+
+        for(QuoteData quote: stockQuote.getData()) {
+            stockPrice.put(quote.getSymbol(), quote.getPrice());
         }
 
-        return 0.00;
+       return stockPrice;
     }
 
     public void deleteStock(Map<String, Object> details) {
