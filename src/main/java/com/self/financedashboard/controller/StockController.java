@@ -10,6 +10,7 @@ import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.model.company.CompanyDetails;
 import com.self.financedashboard.model.marketTrends.TrendResponse;
 import com.self.financedashboard.model.quote.Quote;
+import com.self.financedashboard.model.quote.QuoteData;
 import com.self.financedashboard.service.StockService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class StockController {
         try {
             logger.info("StockController :: stockQuote :: {}", symbol);
             String stockSymbol = symbol + STOCK_EXCHANGE;
-            Quote stockQuote = stockService.getStockQuote(stockSymbol);
+            List<QuoteData> stockQuote = stockService.getStockQuote(stockSymbol);
             return new ResponseEntity<>(stockQuote, HttpStatus.OK);
         }catch (Exception exception) {
             log.error(exception.getMessage());

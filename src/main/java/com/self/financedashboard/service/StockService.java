@@ -41,11 +41,12 @@ public class StockService {
         this.webClient = webClient;
     }
 
-    public Quote getStockQuote(String symbol) {
+    public List<QuoteData> getStockQuote(String symbol) {
         return webClient.get()
                 .uri("/stock-quote?symbol=" + symbol)
                 .retrieve()
                 .bodyToMono(Quote.class)
+                .map(Quote::getListData)
                 .block();
     }
 
@@ -154,6 +155,13 @@ public class StockService {
         return dashboardSummary;
     }
 
+
+    /**
+     * Create a comma separated string of ticker symbols and gets the stock values, eg: TCS:NSE,INFY:NSE
+     * Create a map of ticker against the stock value
+     * @param summaryList Contains user stocks
+     * @return map
+     */
     private Map<String, Double> getStockCurrentPrice(List<Summary> summaryList) {
         StringBuilder sb = new StringBuilder();
 
@@ -165,13 +173,14 @@ public class StockService {
                 sb.append(",");
             } else {
                 sb.append(summary.getSymbol());
+                sb.append(EXCHANGE_NSE);
             }
         }
-        Quote stockQuote = getStockQuote(sb.toString());
+        List<QuoteData> stockQuote = getStockQuote(sb.toString());
 
         Map<String, Double> stockPrice = new HashMap<>();
 
-        for(QuoteData quote: stockQuote.getData()) {
+        for(QuoteData quote: stockQuote) {
             stockPrice.put(quote.getSymbol(), quote.getPrice());
         }
 
