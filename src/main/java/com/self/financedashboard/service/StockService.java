@@ -4,7 +4,6 @@ import com.self.financedashboard.enumeration.TickerSymbol;
 import com.self.financedashboard.model.DashboardSummary;
 import com.self.financedashboard.model.Intraday;
 import com.self.financedashboard.model.Stock;
-import com.self.financedashboard.model.StockDetails;
 import com.self.financedashboard.model.Summary;
 import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.model.company.CompanyDetails;
@@ -16,11 +15,12 @@ import com.self.financedashboard.repository.StockRepository;
 import com.self.financedashboard.repository.SummaryRepository;
 import com.self.financedashboard.util.DashboardSummaryComparator;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +29,8 @@ import java.util.Optional;
 @Service
 @Transactional
 public class StockService {
+
+    private static final Logger logger = LoggerFactory.getLogger(StockService.class);
 
     private final StockRepository stockRepository;
     private final SummaryRepository summaryRepository;
@@ -41,13 +43,17 @@ public class StockService {
         this.webClient = webClient;
     }
 
-    public List<QuoteData> getStockQuote(String symbol) {
-        return webClient.get()
-                .uri("/stock-quote?symbol=" + symbol)
-                .retrieve()
-                .bodyToMono(Quote.class)
-                .map(Quote::getListData)
-                .block();
+    public Quote getStockQuote(String symbol) {
+        try {
+            return webClient.get()
+                    .uri("/stock-quote?symbol=" + symbol)
+                    .retrieve()
+                    .bodyToMono(Quote.class)
+                    .block();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     public TrendResponse getMarketTrends() {
@@ -119,6 +125,8 @@ public class StockService {
         List<DashboardSummary> dashboardSummaryList = new ArrayList<>();
         List<Summary> summaryList = new ArrayList<>(summaryRepository.findAllUserStocks(userId));
 
+        logger.info("StockService :: getUserStocks :: summaryList size :: {}", summaryList.size());
+
         if(!summaryList.isEmpty()) {
             Map<String, Double> stockCurrentPrice = getStockCurrentPrice(summaryList);
 
@@ -127,6 +135,9 @@ public class StockService {
                 if(stockCurrentPrice.containsKey(summary.getSymbol() + EXCHANGE_NSE)) {
                     currentPrice = stockCurrentPrice.get(summary.getSymbol() + EXCHANGE_NSE);
                 }
+
+                logger.info("StockService :: getUserStocks :: {} current price is {}", summary.getSymbol(), currentPrice);
+
                 DashboardSummary dashboardSummary = getDashboardSummary(summary, currentPrice);
 
                 dashboardSummaryList.add(dashboardSummary);
@@ -176,11 +187,11 @@ public class StockService {
                 sb.append(EXCHANGE_NSE);
             }
         }
-        List<QuoteData> stockQuote = getStockQuote(sb.toString());
+        Quote stockQuote = getStockQuote(sb.toString());
 
         Map<String, Double> stockPrice = new HashMap<>();
 
-        for(QuoteData quote: stockQuote) {
+        for(QuoteData quote: stockQuote.getData()) {
             stockPrice.put(quote.getSymbol(), quote.getPrice());
         }
 

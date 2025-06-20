@@ -5,12 +5,10 @@ import com.self.financedashboard.model.DashboardSummary;
 import com.self.financedashboard.model.ErrorResponse;
 import com.self.financedashboard.model.Intraday;
 import com.self.financedashboard.model.Stock;
-import com.self.financedashboard.model.StockDetails;
 import com.self.financedashboard.model.Ticker;
 import com.self.financedashboard.model.company.CompanyDetails;
 import com.self.financedashboard.model.marketTrends.TrendResponse;
 import com.self.financedashboard.model.quote.Quote;
-import com.self.financedashboard.model.quote.QuoteData;
 import com.self.financedashboard.service.StockService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -53,7 +51,7 @@ public class StockController {
         try {
             logger.info("StockController :: stockQuote :: {}", symbol);
             String stockSymbol = symbol + STOCK_EXCHANGE;
-            List<QuoteData> stockQuote = stockService.getStockQuote(stockSymbol);
+            Quote stockQuote = stockService.getStockQuote(stockSymbol);
             return new ResponseEntity<>(stockQuote, HttpStatus.OK);
         }catch (Exception exception) {
             log.error(exception.getMessage());
