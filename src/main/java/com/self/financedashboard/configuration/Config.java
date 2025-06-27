@@ -52,7 +52,9 @@ public class Config {
                 .build();
         return WebClient.builder()
                 .exchangeStrategies(strategies)
-                .defaultHeader("X-RapidAPI-Key", apiKey)
+                .defaultHeader("x-rapidapi-key", apiKey)
+                .defaultHeader("x-rapidapi-host", "real-time-finance-data.p.rapidapi.com")
+                .defaultHeader("Accept", "application/json")
                 .baseUrl(baseUrl)
                 .build();
     }

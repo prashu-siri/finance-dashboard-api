@@ -1,5 +1,6 @@
 package com.self.financedashboard.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.self.financedashboard.enumeration.TickerSymbol;
 import com.self.financedashboard.model.DashboardSummary;
 import com.self.financedashboard.model.Intraday;
@@ -15,11 +16,19 @@ import com.self.financedashboard.repository.StockRepository;
 import com.self.financedashboard.repository.SummaryRepository;
 import com.self.financedashboard.util.DashboardSummaryComparator;
 import jakarta.transaction.Transactional;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,22 +46,48 @@ public class StockService {
     private final WebClient webClient;
     private final static String EXCHANGE_NSE = ":NSE";
 
+    @Value("${rapidapi.key}")
+    String apiKey;
+
+    @Value("${rapidapi.base-url}")
+    String baseUrl;
+
     public StockService(StockRepository stockRepository, SummaryRepository summaryRepository, WebClient webClient) {
         this.stockRepository = stockRepository;
         this.summaryRepository = summaryRepository;
         this.webClient = webClient;
     }
 
-    public Quote getStockQuote(String symbol) {
-        try {
-            return webClient.get()
-                    .uri("/stock-quote?symbol=" + symbol)
-                    .retrieve()
-                    .bodyToMono(Quote.class)
-                    .block();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw new RuntimeException(e);
+    public Quote fetchAllStockDetailsOkHttp(String symbols) {
+        ObjectMapper mapper = new ObjectMapper();
+        String encodedSymbolsParamValue;
+        encodedSymbolsParamValue = URLEncoder.encode(symbols, StandardCharsets.UTF_8);
+
+        String uri = UriComponentsBuilder.fromUriString(baseUrl)
+                .path("/stock-quote")
+                .queryParam("symbol", encodedSymbolsParamValue)
+                .queryParam("language", "en")
+                .build()
+                .toUriString();
+
+        Request request = new Request.Builder()
+                .url(uri)
+                .get()
+                .addHeader("x-rapidapi-key", apiKey)
+                .addHeader("x-rapidapi-host", "real-time-finance-data.p.rapidapi.com")
+                .build();
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new IOException("Unexpected code " + response);
+            }
+            String responseBody = response.body().string();
+            return mapper.readValue(responseBody, Quote.class);;
+        } catch (IOException e) {
+            System.err.println("Error during API call with OkHttp: " + e.getMessage());
+            throw new RuntimeException("API call failed with OkHttp", e);
         }
     }
 
@@ -187,11 +222,13 @@ public class StockService {
                 sb.append(EXCHANGE_NSE);
             }
         }
-        Quote stockQuote = getStockQuote(sb.toString());
+
+        Quote stockQuote = fetchAllStockDetailsOkHttp(sb.toString());
 
         Map<String, Double> stockPrice = new HashMap<>();
 
         for(QuoteData quote: stockQuote.getData()) {
+            logger.info("Current price for {} is {} ", quote.getSymbol(), quote.getPrice());
             stockPrice.put(quote.getSymbol(), quote.getPrice());
         }
 
