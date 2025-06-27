@@ -51,7 +51,7 @@ public class StockController {
         try {
             logger.info("StockController :: stockQuote :: {}", symbol);
             String stockSymbol = symbol + STOCK_EXCHANGE;
-            Quote stockQuote = stockService.getStockQuote(stockSymbol);
+            Quote stockQuote = stockService.fetchAllStockDetailsOkHttp(stockSymbol);
             return new ResponseEntity<>(stockQuote, HttpStatus.OK);
         }catch (Exception exception) {
             log.error(exception.getMessage());
