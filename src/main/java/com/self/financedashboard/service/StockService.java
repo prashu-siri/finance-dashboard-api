@@ -83,12 +83,16 @@ public class StockService {
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected code " + response);
             }
-            String responseBody = response.body().string();
-            return mapper.readValue(responseBody, Quote.class);;
+            if(response.body() != null) {
+                String responseBody = response.body().string();
+                return mapper.readValue(responseBody, Quote.class);
+            }
         } catch (IOException e) {
             System.err.println("Error during API call with OkHttp: " + e.getMessage());
             throw new RuntimeException("API call failed with OkHttp", e);
         }
+
+        return null;
     }
 
     public TrendResponse getMarketTrends() {
